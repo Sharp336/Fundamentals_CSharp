@@ -1,90 +1,91 @@
-﻿// Ковариантность
-public interface IReadOnlyCollection<out T>
+﻿public class Animal
 {
-    T Get(int index);
-    int Count { get; }
+    public virtual void Speak() => Console.WriteLine("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 }
 
-// Контрвариантность
-public interface IService<in T>
+public class Dog : Animal
 {
-    void ChangeCoil(T item);
+    public override void Speak() => Console.WriteLine("Woof");
 }
 
-public class ReadOnlyCollection<T> : IReadOnlyCollection<T>
+public class Cat : Animal
 {
-    private readonly List<T> _items;
+    public override void Speak() => Console.WriteLine("Meow");
+}
 
-    public ReadOnlyCollection(List<T> items)
+// Covariant interface
+public interface ICovariant<out T>
+{
+    T Get();
+}
+
+// Contravariant interface
+public interface IContravariant<in T>
+{
+    void Set(T item);
+}
+
+public class CovariantClass<T> : ICovariant<T>
+{
+    private T _value;
+
+    public CovariantClass(T value) => _value = value;
+
+    public T Get() => _value;
+}
+
+public class ContravariantClass<T> : IContravariant<T>
+{
+    public void Set(T item) => Console.WriteLine(item.ToString());
+}
+
+public delegate T CovariantDelegate<out T>();
+public delegate void ContravariantDelegate<in T>(T value);
+
+class Program
+{
+    static void Main()
     {
-        _items = items;
-    }
+        ICovariant<Dog> covariantDog = new CovariantClass<Dog>(new Dog());
+        ICovariant<Animal> covariantAnimal = covariantDog;
+        Animal animalFromCovariant = covariantAnimal.Get();
+        animalFromCovariant.Speak(); // Woof
 
-    public T Get(int index)
-    {
-        return _items[index];
-    }
+        IContravariant<Animal> contravariantAnimal = new ContravariantClass<Animal>();
+        IContravariant<Dog> contravariantDog = contravariantAnimal;
+        contravariantDog.Set(new Dog()); // Dog
 
-    public int Count => _items.Count;
-}
+        CovariantDelegate<Dog> covariantDelegate = () => new Dog();
+        Animal animalFromDelegate = covariantDelegate();
+        animalFromDelegate.Speak(); // Woof
 
-public class VapeService : IService<Vape>
-{
-    public void ChangeCoil(Vape puf)
-    {
-        Console.WriteLine($"Обслужен испаритель {puf.Model}");
-    }
-}
+        ContravariantDelegate<Animal> contravariantDelegate = (Animal animal) => animal.Speak();
+        contravariantDelegate(new Dog()); // Woof
+        contravariantDelegate(new Cat()); // Meow
 
-public class Vape
-{
-    public string Model { get; set; }
-}
-
-public class Podik : Vape
-{
-    public bool IsDisposable { get; set; }
-}
-
-public class Program
-{
-    public static void Main()
-    {
-        // Ковариантность
-        List<Podik> Podiks = new List<Podik>
-            {
-                new Podik { Model = "HQD", IsDisposable = true },
-                new Podik { Model = "Pasito", IsDisposable = false }
-            };
-
-        IReadOnlyCollection<Vape> VapeCollection = new ReadOnlyCollection<Podik>(Podiks);
-
-        for (int i = 0; i < VapeCollection.Count; i++)
+        List<Dog> dogs = new List<Dog> { new Dog(), new Dog() };
+        IEnumerable<Animal> animals = dogs;
+        foreach (var animal in animals)
         {
-            Vape puf = VapeCollection.Get(i);
-            Console.WriteLine($"Vape from collection: {puf.Model}"); // HQD, Pasito
+            animal.Speak(); // Woof
         }
 
-        // Контрвариантность
-        IService<Podik> PodService = new VapeService();
-        PodService.ChangeCoil(new Podik { Model = "Knight", IsDisposable = false }); // Обслужен испаритель Knight
+        Action<Animal> animalAction = animal => animal.Speak();
+        Action<Dog> dogAction = animalAction;
+        dogAction(new Dog()); // Woof
+
+        Func<Dog> dogFunc = () => new Dog();
+        Func<Animal> animalFunc = dogFunc;
+        animalFromDelegate = animalFunc();
+        animalFromDelegate.Speak(); // Woof
 
         Console.ReadKey();
     }
 }
 
+
 /*
 Справка по дженерикам:
-
-Ковариантность (out):
-   - Позволяет использовать производные типы вместо базовых.
-   - Применяется к интерфейсам и делегатам.
-   - Пример: IReadOnlyRepository<out T>
-
-Контрвариантность (in):
-   - Позволяет использовать базовые типы вместо производных.
-   - Применяется к интерфейсам и делегатам.
-   - Пример: IWriteOnlyRepository<in T>
 
 Обычные дженерики:
    - Позволяют создавать универсальные классы, методы и интерфейсы.
@@ -101,4 +102,16 @@ public class Program
    - Делегаты
    - Структуры
    - Записи
+
+В C# ковариантность и контравариантность позволяют использовать неявное преобразование ссылок для типов массивов, делегатов и аргументов универсального типа.
+
+Ковариантность: Сохраняет совместимость присваивания. Это означает, что вы можете присвоить объект 
+более производного типа переменной базового типа. Например, IEnumerable<Dog> может быть присвоен IEnumerable<Animal>.
+
+Контравариантность: Присваивание работает противоположным образом. Это означает, что вы можете присвоить объект 
+базового типа переменной производного типа. Например, IContravariant<Animal> может быть присвоен IContravariant<Dog>.
+
+Вариативность поддерживается только для ссылочных типов. Типы значений, такие как int и double, не могут использовать ковариантность или контравариантность.
+Массивы в C# ковариантны, но это может привести к исключениям времени выполнения (ArrayTypeMismatchException), если неправильно использовать типы.\
+
 */
