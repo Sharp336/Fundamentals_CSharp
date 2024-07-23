@@ -1,6 +1,6 @@
 ﻿public class Animal
 {
-    public virtual void Speak() => Console.WriteLine("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    public virtual void Speak() => Console.WriteLine("Animal sound");
 }
 
 public class Dog : Animal
@@ -47,42 +47,27 @@ class Program
     static void Main()
     {
         ICovariant<Dog> covariantDog = new CovariantClass<Dog>(new Dog());
-        ICovariant<Animal> covariantAnimal = covariantDog;
+        ICovariant<Animal> covariantAnimal = covariantDog; 
         Animal animalFromCovariant = covariantAnimal.Get();
         animalFromCovariant.Speak(); // Woof
 
         IContravariant<Animal> contravariantAnimal = new ContravariantClass<Animal>();
-        IContravariant<Dog> contravariantDog = contravariantAnimal;
+        IContravariant<Dog> contravariantDog = contravariantAnimal; 
         contravariantDog.Set(new Dog()); // Dog
 
         CovariantDelegate<Dog> covariantDelegate = () => new Dog();
-        Animal animalFromDelegate = covariantDelegate();
+        CovariantDelegate<Animal> animalDelegate = covariantDelegate;
+        Animal animalFromDelegate = animalDelegate();
         animalFromDelegate.Speak(); // Woof
 
         ContravariantDelegate<Animal> contravariantDelegate = (Animal animal) => animal.Speak();
-        contravariantDelegate(new Dog()); // Woof
-        contravariantDelegate(new Cat()); // Meow
-
-        List<Dog> dogs = new List<Dog> { new Dog(), new Dog() };
-        IEnumerable<Animal> animals = dogs;
-        foreach (var animal in animals)
-        {
-            animal.Speak(); // Woof
-        }
-
-        Action<Animal> animalAction = animal => animal.Speak();
-        Action<Dog> dogAction = animalAction;
-        dogAction(new Dog()); // Woof
-
-        Func<Dog> dogFunc = () => new Dog();
-        Func<Animal> animalFunc = dogFunc;
-        animalFromDelegate = animalFunc();
-        animalFromDelegate.Speak(); // Woof
+        ContravariantDelegate<Dog> dogDelegate = contravariantDelegate; 
+        dogDelegate(new Dog()); // Woof
 
         Console.ReadKey();
     }
-}
 
+}
 
 /*
 Справка по дженерикам:
@@ -103,7 +88,7 @@ class Program
    - Структуры
    - Записи
 
-В C# ковариантность и контравариантность позволяют использовать неявное преобразование ссылок для типов массивов, делегатов и аргументов универсального типа.
+Вариантность в C#:
 
 Ковариантность: Сохраняет совместимость присваивания. Это означает, что вы можете присвоить объект 
 более производного типа переменной базового типа. Например, IEnumerable<Dog> может быть присвоен IEnumerable<Animal>.
@@ -112,6 +97,18 @@ class Program
 базового типа переменной производного типа. Например, IContravariant<Animal> может быть присвоен IContravariant<Dog>.
 
 Вариативность поддерживается только для ссылочных типов. Типы значений, такие как int и double, не могут использовать ковариантность или контравариантность.
-Массивы в C# ковариантны, но это может привести к исключениям времени выполнения (ArrayTypeMismatchException), если неправильно использовать типы.\
+Массивы в C# ковариантны, но это может привести к исключениям времени выполнения (ArrayTypeMismatchException), если неправильно использовать типы.
+
+ Когда вариантность присутствует по умолчанию:
+- Массивы в C# ковариантны.
+- Делегаты поддерживают ковариантность и контравариантность для совпадения сигнатур методов. Например, 
+делегат с возвращаемым типом object может использовать метод, который возвращает string (ковариантность), 
+а делегат с параметром object может использовать метод, принимающий string (контравариантность).
+
+!!! Однако, для неявного преобразования между делегатами всё-таки необходимо указать in или out - https://learn.microsoft.com/ru-ru/dotnet/csharp/programming-guide/concepts/covariance-contravariance/variance-in-delegates
+
+Важно: параметры `ref`, `in` и `out` в C# невозможно пометить как вариативные. 
+В одном делегате можно реализовать поддержку вариативности и ковариации, но для разных параметров типа. Пример:
+public delegate R DVariant<in A, out R>(A a);  
 
 */

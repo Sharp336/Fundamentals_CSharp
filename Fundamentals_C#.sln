@@ -19,13 +19,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LINQ", "LINQ\LINQ.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Expression", "Expression\Expression.csproj", "{E5971CB5-6C36-407B-ACD2-BFD2B62FBC1D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enumerable_vs_Queryable", "Enumerable_vs_Queryable\Enumerable_vs_Queryable.csproj", "{ADD5BE27-34F0-4906-8397-2A4A92E3676A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enumerable_vs_Queryable", "Enumerable_vs_Queryable\Enumerable_vs_Queryable.csproj", "{ADD5BE27-34F0-4906-8397-2A4A92E3676A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SynchronizationPrimitives", "SynchronizationPrimitives\SynchronizationPrimitives.csproj", "{AC7DEC6C-5839-4EA3-89A8-E14DF8D22513}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SynchronizationPrimitives", "SynchronizationPrimitives\SynchronizationPrimitives.csproj", "{AC7DEC6C-5839-4EA3-89A8-E14DF8D22513}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SynchronizationContext", "SynchronizationContext\SynchronizationContext.csproj", "{FFB076BF-D459-4155-A7C9-0AC4B9C94239}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SynchronizationContext", "SynchronizationContext\SynchronizationContext.csproj", "{FFB076BF-D459-4155-A7C9-0AC4B9C94239}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parallel.ForEach_vs_PLINQ", "Parallel.ForEach_vs_PLINQ\Parallel.ForEach_vs_PLINQ.csproj", "{4F10E6A6-5E9D-4ADF-B885-F675CFF9148D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Parallel.ForEach_vs_PLINQ", "Parallel.ForEach_vs_PLINQ\Parallel.ForEach_vs_PLINQ.csproj", "{4F10E6A6-5E9D-4ADF-B885-F675CFF9148D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Principles", "Principles\Principles.csproj", "{83210383-BA4E-4406-9B2A-6EC2D0A7C754}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +83,10 @@ Global
 		{4F10E6A6-5E9D-4ADF-B885-F675CFF9148D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F10E6A6-5E9D-4ADF-B885-F675CFF9148D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F10E6A6-5E9D-4ADF-B885-F675CFF9148D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83210383-BA4E-4406-9B2A-6EC2D0A7C754}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83210383-BA4E-4406-9B2A-6EC2D0A7C754}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83210383-BA4E-4406-9B2A-6EC2D0A7C754}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83210383-BA4E-4406-9B2A-6EC2D0A7C754}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
