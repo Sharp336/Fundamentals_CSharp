@@ -34,6 +34,11 @@ class Program
     }
 }
 
+public interface IWorker
+{
+    void Work();
+}
+
 public class BadWorker
 {
     public void Work()
@@ -45,11 +50,6 @@ public class BadWorker
     {
         Console.WriteLine("Работник управляет.");
     }
-}
-
-public interface IWorker
-{
-    void Work();
 }
 
 public class Worker : IWorker
@@ -88,13 +88,13 @@ public class Manager
     }
 }
 
-public class BadSuperWorker : Worker
+public class BadSuperWorker : IWorker
 {
     public void SuperWork()
     {
         Console.WriteLine("Супер работник вник и реально пашет.");
     }
-    public new void Work()
+    public void Work()
     {
         throw new NotImplementedException("Супер работник не работает так.");
     }
@@ -213,7 +213,12 @@ public class EmailValidator
 {
     public bool Validate(string email)
     {
-        return email.Contains("@") && email.Contains(".");
+        return !string.IsNullOrWhiteSpace(email) &&
+            System.Text.RegularExpressions.Regex.IsMatch(
+                email,
+                @"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$",
+                System.Text.RegularExpressions.RegexOptions.CultureInvariant | 
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
     }
 
     public bool BadValidate(string email)

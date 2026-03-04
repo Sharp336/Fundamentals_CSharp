@@ -22,12 +22,12 @@ public interface ICovariant<out T>
 // Contravariant interface
 public interface IContravariant<in T>
 {
-    void Set(T item);
+    void Consume(T item);
 }
 
 public class CovariantClass<T> : ICovariant<T>
 {
-    private T _value;
+    private readonly T _value;
 
     public CovariantClass(T value) => _value = value;
 
@@ -36,7 +36,7 @@ public class CovariantClass<T> : ICovariant<T>
 
 public class ContravariantClass<T> : IContravariant<T>
 {
-    public void Set(T item) => Console.WriteLine(item.ToString());
+    public void Consume(T item) => Console.WriteLine(item);
 }
 
 public delegate T CovariantDelegate<out T>();
@@ -53,7 +53,7 @@ class Program
 
         IContravariant<Animal> contravariantAnimal = new ContravariantClass<Animal>();
         IContravariant<Dog> contravariantDog = contravariantAnimal; 
-        contravariantDog.Set(new Dog()); // Dog
+        contravariantDog.Consume(new Dog()); // Dog
 
         CovariantDelegate<Dog> covariantDelegate = () => new Dog();
         CovariantDelegate<Animal> animalDelegate = covariantDelegate;
@@ -73,12 +73,9 @@ class Program
 Справка по дженерикам:
 
 Обычные дженерики:
-   - Позволяют создавать универсальные классы, методы и интерфейсы.
+   - Позволяют писать универсальные классы, методы, интерфейсы и делегаты, не привязываясь к одному конкретному типу.
    - Пример: public class Repository<T>
-
-Атрибуты для дженериков:
-   - GenericVarianceAttribute (ковариантность и контрвариантность).
-   - GenericTypeParametersConstraintAttribute (ограничения типа параметра).
+   - Главный плюс: типобезопасность без кастов и object.
 
 Элементы кода, к которым могут применяться дженерики:
    - Классы
@@ -88,27 +85,60 @@ class Program
    - Структуры
    - Записи
 
+Ограничения generic-параметров (constraints):
+   - where T : class      -> T должен быть ссылочным типом
+   - where T : struct     -> T должен быть значимым типом (non-nullable value type)
+   - where T : new()      -> у T должен быть публичный конструктор без параметров
+   - where T : BaseClass  -> T должен наследоваться от указанного класса
+   - where T : IInterface -> T должен реализовывать указанный интерфейс
+   - Ограничения можно комбинировать, если это допустимо по синтаксису
+
 Вариантность в C#:
 
-Ковариантность: Сохраняет совместимость присваивания. Это означает, что вы можете присвоить объект 
-более производного типа переменной базового типа. Например, IEnumerable<Dog> может быть присвоен IEnumerable<Animal>.
+По умолчанию generic-типы инвариантны.
+Это значит, что если Dog : Animal, то:
+   - List<Dog> НЕ является List<Animal>
+   - Repository<Dog> НЕ является Repository<Animal>
 
-Контравариантность: Присваивание работает противоположным образом. Это означает, что вы можете присвоить объект 
-базового типа переменной производного типа. Например, IContravariant<Animal> может быть присвоен IContravariant<Dog>.
+Вариантность позволяет ослабить это правило только в безопасных случаях.
 
-Вариативность поддерживается только для ссылочных типов. Типы значений, такие как int и double, не могут использовать ковариантность или контравариантность.
-Массивы в C# ковариантны, но это может привести к исключениям времени выполнения (ArrayTypeMismatchException), если неправильно использовать типы.
+Ковариантность (out):
+   - Используется, когда generic-параметр только "отдаётся наружу"
+   - Позволяет присвоить более конкретный тип более общему
+   - Пример: IEnumerable<Dog> -> IEnumerable<Animal>
+   - Мнемоника: producer -> out
 
- Когда вариантность присутствует по умолчанию:
-- Массивы в C# ковариантны.
-- Делегаты поддерживают ковариантность и контравариантность для совпадения сигнатур методов. Например, 
-делегат с возвращаемым типом object может использовать метод, который возвращает string (ковариантность), 
-а делегат с параметром object может использовать метод, принимающий string (контравариантность).
+Контравариантность (in):
+   - Используется, когда generic-параметр только "принимается внутрь"
+   - Позволяет присвоить более общий тип более конкретному
+   - Пример: IComparer<Animal> -> IComparer<Dog>
+   - Мнемоника: consumer -> in
 
-!!! Однако, для неявного преобразования между делегатами всё-таки необходимо указать in или out - https://learn.microsoft.com/ru-ru/dotnet/csharp/programming-guide/concepts/covariance-contravariance/variance-in-delegates
+Где в C# можно объявить вариантность:
+   - Только у интерфейсов
+   - Только у делегатов
 
-Важно: параметры `ref`, `in` и `out` в C# невозможно пометить как вариативные. 
-В одном делегате можно реализовать поддержку вариативности и ковариации, но для разных параметров типа. Пример:
-public delegate R DVariant<in A, out R>(A a);  
+Примеры встроенной вариантности:
+   - IEnumerable<out T>   -> ковариантен
+   - IComparer<in T>      -> контравариантен
+   - Func<in T, out TResult>
+   - Action<in T>
 
+Вариантность поддерживается только для ссылочных типов.
+Типы значений (int, double, DateTime, структуры и т.д.) не участвуют в ковариантности и контравариантности.
+
+Массивы в C#:
+   - Массивы ковариантны: Dog[] можно присвоить Animal[]
+   - Но это небезопасно и может привести к ошибке времени выполнения:
+     ArrayTypeMismatchException
+   - Поэтому ковариантность массивов - легаси абуз, а не пример хорошего дизайна
+
+Делегаты и вариантность:
+   - Делегаты поддерживают ковариантность и контравариантность
+   - Если делегат возвращает значение, возможна ковариантность по возвращаемому типу
+   - Если делегат принимает параметр, возможна контравариантность по параметру
+   - Для неявного преобразования между generic-делегатами нужно явно указывать in / out
+
+Пример:
+   public delegate R DVariant<in A, out R>(A a);
 */
